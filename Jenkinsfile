@@ -1,53 +1,31 @@
-def getDockerTag() {
- def tag = sh script: 'git rev-parse HEAD', returnStdout: true 
- return tag
-}
-pipeline{
-
-      agent {
-                docker {
-                image 'maven'
-                args '-v $HOME/.m2:/root/.m2'
-                }
-             }
-      environment {
-          Docker_tag = getDockerTag()
-      }
-        
-        stages{
-
-              stage('Quality Gate Status Check'){
-                  steps{
-                      script{
-			      withSonarQubeEnv('sonarserver') { 
-			      sh "mvn sonar:sonar"
-                       	     	}
-			      timeout(time: 1, unit: 'HOURS') {
-			      def qg = waitForQualityGate()
-				      if (qg.status != 'OK') {
-					   error "Pipeline aborted due to quality gate failure: ${qg.status}"
-				      }
-                    		}
-		    	    sh "mvn clean install"
-		  
-                 	}
-               	 }  
-              }	
-
-              stage('build'){
-		      steps {
-			      script{
-                sh 'docker build . -t deekshithsn/devops-training:$Docker_tag'
-                withCredentials([string(credentialsId: 'docker_password', variable: 'docker_password')]) {
+pipeline {
+    agent {
+        docker {
+            image 'maven'
+            args '-v $HOME/.m2:/root/.m2'
+        }
+    }
     
-                sh '''docker login -u deekshithsn -p $docker_password
-                docker push deekshithsn/devops-training:$Docker_tag
-		'''
-                }
-                
-			      }
-		      }
-              }
-		
-            }	       	     	         
+    stages {
+        stage("checkout"){
+            steps{
+                git 'https://github.com/practiceaws031/sample-web-application.git'
+            }
+        }
+        stage("build"){
+            steps{
+                sh 'mvn clean package'
+            }
+        }
+        stage("build dockerfile"){
+            steps {
+                sh 'docker build -t tomcat_image .'
+            }
+        }
+        stage("deploy container"){
+            steps {
+                sh 'docker run -itd --name tomcat_container -p 8090:8080 tomcat_image'
+            }
+        }
+    }
 }

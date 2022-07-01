@@ -19,7 +19,7 @@ pipeline {
         }
         stage("build dockerfile"){
             steps {
-                sh 'docker build -t tomcat_image .'
+                sh 'docker build -t tomcat_image:latest .'
             }
         }
         stage("deploy container"){

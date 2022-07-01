@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage("checkout"){
             steps{
-                git 'https://github.com/practiceaws031/sample-web-application.git'
+                checkout scm
             }
         }
         stage("build"){

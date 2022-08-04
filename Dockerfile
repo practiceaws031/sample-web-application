@@ -2,7 +2,7 @@ FROM maven AS sample123
 LABEL Name="satheesh@gmail.com"
 RUN mkdir git
 RUN cd git && git clone -b ansible-sonar https://github.com/practiceaws031/sample-web-application.git
-RUN cd sample-web-application && mvn install
+RUN cd /sample-web-application && mvn install
 
 FROM tomcat 
 WORKDIR webapps 

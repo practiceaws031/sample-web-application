@@ -3,8 +3,7 @@ LABEL Name="satheesh@gmail.com"
 USER root
 RUN mkdir git
 RUN cd git && git clone -b ansible-sonar https://github.com/practiceaws031/sample-web-application.git
-RUN cd /git/sample-web-application
-RUN mvn install
+RUN cd /git/sample-web-application && mvn install
 
 FROM tomcat 
 WORKDIR webapps 
